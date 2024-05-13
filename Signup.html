@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Login + Firebase Database</title>
+    <!-- Cool Google Fonts -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bowlby+One+SC&display=swap" rel="stylesheet">
+    <!-- Our stylesheet -->
+    <link rel="stylesheet" type="text/css" href="signup.css">
+</head>
+<body>
+    <div id="content_container">
+        <div id="form_container">
+            <div id="form_header_container">
+                <h2 id="form_header">Login</h2>
+            </div>
+
+            <div id="form_content_container">
+                <div id="form_content_inner_container">
+                    <h2>Sign Up or Sign In</h2>
+                    <input type="email" placeholder="email" id="userEmail" />
+                    <input type="password" placeholder="password" id="userPassword" />
+
+                    <div id="button_container">
+                        <button id="signUpButton">Sign Up</button>
+                        <button id="signInButton">Sign In</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="secretContent">
+        <h1>User is Signed In</h1>
+        <button id="signOutButton">Sign Out</button>
+      </div>
+
+    <script type="module">
+        //Update the below URL with the appropriate version if necessary.
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
+        import {
+          getAuth,
+          createUserWithEmailAndPassword,
+          signInWithEmailAndPassword,
+          onAuthStateChanged,
+          signOut,
+          //Update the below URL with the appropriate version if necessary.
+        } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
+  
+        // INSERT YOUR FIREBASE CONFIG OBJECT HERE
+        const firebaseConfig = {
+            apiKey: "AIzaSyBljGqd9lB5nu3UoOkNVbaFZ1LFi7J2HDI",
+            authDomain: "login-signup-7f035.firebaseapp.com",
+            projectId: "login-signup-7f035",
+            storageBucket: "login-signup-7f035.appspot.com",
+            messagingSenderId: "487628890047",
+            appId: "1:487628890047:web:d10d76747efd0629cd0b0a"
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+  
+        const userEmail = document.querySelector("#userEmail");
+        const userPassword = document.querySelector("#userPassword");
+        const authForm = document.querySelector("#authForm");
+        const secretContent = document.querySelector("#secretContent");
+        const signUpButton = document.querySelector("#signUpButton");
+        const signInButton = document.querySelector("#signInButton");
+        const signOutButton = document.querySelector("#signOutButton");
+  
+        secretContent.style.display = "none";
+  
+        const userSignUp = async () => {
+          const signUpEmail = userEmail.value;
+          const signUpPassword = userPassword.value;
+          createUserWithEmailAndPassword(auth, signUpEmail, signUpPassword)
+            .then((userCredential) => {
+              const user = userCredential.user;
+              console.log(user);
+              Swal.fire("Your Account is succesfully created!");
+            })
+            .catch((error) => {
+              const errorCode = error.code;
+              const errorMessage = error.message;
+              console.log(errorCode + errorMessage);
+              Swal.fire("Invalid Email or Password must have atleast 6");
+  
+            });
+        };
+  
+        const userSignIn = async () => {
+          const signInEmail = userEmail.value;
+          const signInPassword = userPassword.value;
+          signInWithEmailAndPassword(auth, signInEmail, signInPassword)
+            .then((userCredential) => {
+              const user = userCredential.user;
+              Swal.fire("You have signed in successfully!");
+              window.location.href = "logged-in.html"; 
+            })
+            .catch((error) => {
+              const errorCode = error.code;
+              const errorMessage = error.message;
+              console.log(errorCode + errorMessage);
+              Swal.fire("Wrong Email or Password");
+            });
+        };
+  
+        const checkAuthState = async () => {
+          onAuthStateChanged(auth, (user) => {
+            if (user) {
+              authForm.style.display = "none";
+              secretContent.style.display = "block";
+            } else {
+              authForm.style.display = "block";
+              secretContent.style.display = "none";
+            }
+          });
+        };
+  
+        const userSignOut = async () => {
+          await signOut(auth);
+          Swal.fire("User Logout");
+        };
+  
+        checkAuthState();
+  
+        signUpButton.addEventListener("click", userSignUp);
+        signInButton.addEventListener("click", userSignIn);
+        signOutButton.addEventListener("click", userSignOut);
+
+      </script>
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+      
+
+</body>
+</html>
